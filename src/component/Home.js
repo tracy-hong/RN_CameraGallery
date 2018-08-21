@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Dimensions, Image, StatusBar, Text, View} from "react-native";
+import {Dimensions, Image, ToastAndroid, BackHandler, StatusBar, Alert, View} from "react-native";
 import {StyleSheet} from 'react-native'
 import Swiper from 'react-native-swiper';
 import HeaderView from "../widget/HeaderView";
+import {Actions} from 'react-native-router-flux';
 
 // 取得屏幕的宽高Dimensions
 const { width, height } = Dimensions.get('window');
@@ -12,6 +13,38 @@ export default class Home extends Component {
     constructor(props) {
         super(props);
     }
+
+    componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    onBackAndroid = () => {
+        if (Actions.currentScene === '_home') {
+            this.onBackExitAPP();
+            return true;
+        }
+    };
+
+    onBackExitAPP = () => {
+        if (this.lastBackPressed && this.lastBackPressed + 2000 >= Date.now()) {
+
+            //最近2秒内按过back键，可以退出应用。
+
+            BackHandler.exitApp();
+            return false;
+
+        }
+
+        this.lastBackPressed = Date.now();
+
+        ToastAndroid.show('再按一次退出应用', ToastAndroid.SHORT);
+
+        return true;
+    };
 
     // swip 需要外面包裹一层再设置高度，要不高度会失效，沾满整个屏幕
     render() {

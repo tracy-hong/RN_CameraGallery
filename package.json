@@ -16,6 +16,7 @@
     "react": "16.3.1",
     "react-native": "0.55.4",
     "react-native-camera-kit": "^6.2.6",
+    "react-native-exit-app": "^1.0.0",
     "react-native-fetch-blob": "^0.10.8",
     "react-native-linear-gradient": "^2.4.0",
     "react-native-router-flux": "^4.0.0-beta.31",
