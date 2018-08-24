@@ -11,7 +11,7 @@ export default class Splash extends Component {
         this.timer = setTimeout(
             () => {
                 //3秒之后的操作
-                Actions.replace('home');
+                Actions.replace('login');
             },
             3000
         );

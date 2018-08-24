@@ -11,6 +11,7 @@ import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.fenghuantech.payshell.image.ImageResizerPackage;
 import com.fenghuantech.payshell.scan.IDCardScanPackage;
+import com.github.wumke.RNExitApp.RNExitAppPackage;
 import com.wix.RNCameraKit.RNCameraKitPackage;
 
 import java.util.Arrays;
@@ -30,7 +31,8 @@ public class MainApplication extends Application implements ReactApplication {
                 new MainReactPackage(),
                 new IDCardScanPackage(),
                 new RNCameraKitPackage(),
-                new ImageResizerPackage()
+                new ImageResizerPackage(),
+                new RNExitAppPackage()
         );
     }
 

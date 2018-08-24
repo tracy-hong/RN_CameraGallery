@@ -12,6 +12,9 @@ import IdCardInfo from "./src/component/IdCardInfo";
 import CreditCardPage from "./src/component/CreditCardPage";
 import ModifyCreditInfo from "./src/component/ModifyCreditInfo";
 import UserPage from "./src/component/UserPage";
+import Login from "./src/component/Login";
+import BindCard from "./src/component/BindCard";
+import BankPicker from "./src/component/BankPicker";
 
 class App extends Component {
     render() {
@@ -23,6 +26,9 @@ class App extends Component {
                     <Scene key="creditcard" component={CreditCardPage} hideNavBar={true}/>
                     <Scene key="modifyCredit" component={ModifyCreditInfo} hideNavBar={true}/>
                     <Scene key="realname" component={RealnameInfo} hideNavBar={true}/>
+                    <Scene key="login" component={Login} hideNavBar={true}/>
+                    <Scene key="bindcard" component={BindCard} hideNavBar={true}/>
+                    <Scene key="bankpicker" component={BankPicker} hideNavBar={true}/>
                     <Scene key="splash" component={Splash} hideNavBar={true}
                            initial={true}
                     />

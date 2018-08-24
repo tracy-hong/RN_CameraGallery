@@ -16,12 +16,13 @@ export default class RealnameInfo extends Component {
             frontCardImage: '',
             backCardImage: '',
             holdCardImage: '',
+            idCardNo:'',
             isLoading: false,
         }
     }
 
     onTakePicture = async () => {
-        this.setState({frontCardImage: ''});
+        // this.setState({frontCardImage: ''});
         Actions.camera({requestFrom: DataKeys.FRONT_ID_CARD})
     };
 
@@ -34,7 +35,24 @@ export default class RealnameInfo extends Component {
     };
 
     nextPage = () => {
-        Actions.cardinfo();
+        let idCardNo = this.state.idCardNo;
+        Actions.cardinfo({idCardNo: idCardNo}, {frontCardImage:this.state.frontCardImage},{backCardImage:this.props.backCardImage});
+    };
+
+    takeFrontImage = async () => {
+        this.setState({isLoading: true});
+        try {
+            let {idCardFrontImage, idCardNo} = await IDCardScan.scanIdCard(DataKeys.FRONT_ID_CARD_CODE);
+            console.log("card: " + idCardFrontImage + ';' + idCardNo);
+            this.setState({
+                frontCardImage: idCardFrontImage,
+                idCardNo: idCardNo,
+                isLoading: false,
+            })
+
+        } catch (e) {
+            this.setState({isLoading: false});
+        }
     };
 
     render() {
@@ -54,14 +72,10 @@ export default class RealnameInfo extends Component {
                            source={{uri: frontCardImage}}/>
                 </TouchableHighlight>
                 :
-                <Button
-                    style={styles.idcard}
-                    styleDisabled={{ color: 'white' }}
-                    containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
-                    onPress={this.onTakePicture}
-                >
-                    点击上传身份证正面照片
-                </Button>
+                    <TouchableHighlight onPress={this.takeFrontImage}>
+                        <Image style={styles.cardImage}
+                               source={require('../../image/qian.png')}/>
+                    </TouchableHighlight>
                  }
 
                 {this.props.backCardImage ?
@@ -70,20 +84,10 @@ export default class RealnameInfo extends Component {
                                source={{uri: this.props.backCardImage}}/>
                     </TouchableHighlight>
                     :
-                    <Button
-                        style={styles.idcard}
-                        styleDisabled={{color: 'white'}}
-                        containerStyle={{
-                            padding: 10,
-                            height: 45,
-                            overflow: 'hidden',
-                            borderRadius: 4,
-                            backgroundColor: 'aqua'
-                        }}
-                        onPress={this.takeBackImage}
-                    >
-                        点击上传身份证背面照片
-                    </Button>
+                    <TouchableHighlight onPress={this.takeBackImage}>
+                        <Image style={styles.cardImage}
+                               source={require('../../image/back.png')}/>
+                    </TouchableHighlight>
                 }
 
                 <Button
@@ -91,13 +95,17 @@ export default class RealnameInfo extends Component {
                         fontSize: 18,
                         height:40,
                         width:width-80,
-                        color: 'white',
+                        color:'#ffffff',
+                        backgroundColor:'#0073ff',
+                        borderColor:'#0073ff',
                         marginTop:25}}
                     styleDisabled={{ color: 'white' }}
-                    containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
+                    containerStyle={{ padding: 10, color: '#ffffff', height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
                     onPress={this.nextPage}
                 >
-                    下一步
+                    <Text style={{color:'#ffffff'}}>
+                        下一步
+                    </Text>
                 </Button>
 
             </View>

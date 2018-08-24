@@ -15,6 +15,9 @@ import HeaderView from "../widget/HeaderView";
 import {Actions} from 'react-native-router-flux';
 import IDCardScan from '../native/IDCardScan';
 import DataKeys from "../const/DataKeys";
+import Toast from "../widget/Toast";
+import StorageUtil from "../util/StorageUtil";
+import BackInfo from "../const/BackInfo";
 
 // 取得屏幕的宽高Dimensions
 const { width, height } = Dimensions.get('window');
@@ -25,11 +28,15 @@ export default class IdCardInfo extends Component {
         this.state = {
             holdCardImage: '',
             idCardName: '',
+            idCardNo:'',
             email: '',
             address: '',
-            idCardNo: '',
             isLoading: false,
         }
+    }
+
+    componentWillMount() {
+        this.setState({idCardNo:this.props.idCardNo});
     }
 
 
@@ -38,8 +45,38 @@ export default class IdCardInfo extends Component {
     };
 
 
-    nextPage = () => {
+    complete = () => {
+        const frontCardImage = this.state.frontCardImage? this.state.frontCardImage: this.props.frontCardImage;
 
+        if (this.props.backCardImage === ''
+            || frontCardImage === ''
+            || this.props.holdCardImage === '') {
+            Toast.show('身份证照片不能为空', Toast.SHORT);
+            return;
+
+        }
+        if (this.state.idCardName === '') {
+            Toast.show('姓名不能为空', Toast.SHORT);
+            return;
+        }
+
+        if (this.state.idCardNo === '') {
+            Toast.show('身份证号码不能为空', Toast.SHORT);
+            return;
+        }
+
+        if (this.state.email === '') {
+            Toast.show('邮箱不能为空', Toast.SHORT);
+            return;
+        }
+        if (this.state.address === '') {
+            Toast.show('地址不能为空', Toast.SHORT);
+            return;
+        }
+
+        StorageUtil.set(BackInfo.IDCARD_NUM, this.state.idCardNo);
+        Toast.show("实名认证成功！", Toast.SHORT);
+        Actions.replace('home');
     };
 
     render() {
@@ -57,14 +94,10 @@ export default class IdCardInfo extends Component {
                            source={{uri: this.props.holdCardImage}}/>
                 </TouchableHighlight>
                 :
-                <Button
-                    style={styles.idcard}
-                    styleDisabled={{ color: 'white' }}
-                    containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
-                    onPress={this.holdCardImage}
-                >
-                    点击上传手持身份证照片
-                </Button>
+                    <TouchableHighlight onPress={this.holdCardImage}>
+                        <Image style={styles.cardImage}
+                               source={require('../../image/hand.png')}/>
+                    </TouchableHighlight>
                  }
 
                 <ImageBackground
@@ -136,12 +169,16 @@ export default class IdCardInfo extends Component {
                         height:40,
                         width:width-80,
                         color: 'white',
+                        backgroundColor:'#0073ff',
+                        borderColor:'#0073ff',
                         marginTop:25}}
                     styleDisabled={{ color: 'white' }}
                     containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
-                    onPress={this.nextPage}
+                    onPress={this.complete}
                 >
-                    完成
+                    <Text style={{color:'#ffffff'}}>
+                        完成
+                    </Text>
                 </Button>
 
             </View>

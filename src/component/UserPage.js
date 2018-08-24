@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {
     Dimensions,
     StatusBar,
-    StyleSheet,
+    StyleSheet, Text,
     View,
 } from "react-native";
 
@@ -10,19 +10,42 @@ import {
 import HeaderView from "../widget/HeaderView";
 import Button from 'apsl-react-native-button'
 import {Actions} from 'react-native-router-flux';
+import StorageUtil from "../util/StorageUtil";
+import BackInfo from "../const/BackInfo";
+import Toast from "../widget/Toast";
 const { width, height } = Dimensions.get('window');
 
 export default class UserPage extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            idcardnum:'',
+        }
+    }
+
+    componentWillMount() {
+        StorageUtil.get(BackInfo.IDCARD_NUM).then((idcardnum) => {
+            this.setState({idcardnum:idcardnum});
+        });
+
     }
 
     realName = () => {
+        if (this.state.idcardnum !==null) {
+            console.log("idcardnum: " + this.state.idcardnum);
+            Toast.show("已经实名认证",Toast.SHORT);
+            return;
+        }
         Actions.realname();
     };
 
     creditInfo = () => {
         Actions.creditcard();
+    };
+
+    logout = () => {
+       StorageUtil.delete(BackInfo.USER_LOGIN);
+       Actions.replace('login');
     };
 
     render() {
@@ -39,12 +62,16 @@ export default class UserPage extends Component {
                         height:40,
                         width:width-80,
                         color: 'white',
+                        backgroundColor:'#0073ff',
+                        borderColor:'#0073ff',
                         marginTop:25}}
                     styleDisabled={{ color: 'white' }}
                     containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
                     onPress={this.realName}
                 >
-                    身份认证
+                    <Text style={{color:'#ffffff'}}>
+                        身份认证
+                    </Text>
                 </Button>
 
                 <Button
@@ -53,15 +80,35 @@ export default class UserPage extends Component {
                         height:40,
                         width:width-80,
                         color: 'white',
+                        backgroundColor:'#0073ff',
+                        borderColor:'#0073ff',
                         marginTop:25}}
                     styleDisabled={{ color: 'white' }}
                     containerStyle={{ padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
                     onPress={this.creditInfo}
                 >
-                    信用卡信息
+                    <Text style={{color:'#ffffff'}}>
+                        信用卡信息
+                    </Text>
                 </Button>
 
-
+                <Button
+                    style={{ alignSelf: 'center',
+                        fontSize: 18,
+                        height:36,
+                        width:120,
+                        marginTop:150,
+                        backgroundColor:'#0073ff',
+                        borderColor:'#0073ff',
+                    }}
+                    styleDisabled={{ color: 'white' }}
+                    containerStyle={{ color:"#ffffff", padding: 10, height: 45, overflow: 'hidden', borderRadius: 4, backgroundColor: 'aqua' }}
+                    onPress={this.logout}
+                >
+                    <Text style={{color:'#ffffff'}}>
+                        退出
+                    </Text>
+                </Button>
             </View>
 
         )
