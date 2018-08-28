@@ -1,11 +1,20 @@
 import React, {Component} from 'react'
-import {Dimensions, Image, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {
+    BackHandler,
+    Dimensions,
+    Image,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from "react-native";
 import HeaderView from "../widget/HeaderView";
 import Button from 'apsl-react-native-button'
 import {Actions} from 'react-native-router-flux';
 import Toast from "../widget/Toast";
-import StorageUtil from "../util/StorageUtil";
-import BankInfo from "../const/BackInfo";
+import CommonDataManager from "../manager/CommonDataManager";
 
 // 取得屏幕的宽高Dimensions
 const { width, height } = Dimensions.get('window');
@@ -20,9 +29,36 @@ export default class ModifyCreditInfo extends Component {
         }
     }
 
+    componentDidMount() {
+        console.log("componentDidMount");
+        BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    componentWillUnmount() {
+        console.log("componentWillUnmount");
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    onBackAndroid = () => {
+        console.log('currentScene: ' + Actions.currentScene);
+        if (Actions.currentScene === 'modifyCredit') {
+            Actions.replace('user');
+            return true;
+        }
+    };
+
+    goCreditPage = () => {
+        Actions.replace('user');
+    };
+
     modify = () => {
         if (this.state.money === '') {
             Toast.show("额度不能为空", Toast.SHORT);
+            return;
+        }
+
+        if (this.state.money < 0 || !this.isRealNum(this.state.money)) {
+            Toast.show("额度无效", Toast.SHORT);
             return;
         }
 
@@ -36,10 +72,37 @@ export default class ModifyCreditInfo extends Component {
             return;
         }
 
-        StorageUtil.set(BankInfo.MONEY, this.state.money);
-        StorageUtil.set(BankInfo.REPAYMENT_DAY, this.state.repaymentday);
-        StorageUtil.set(BankInfo.BILL_DAY, this.state.billday);
-        Actions.pop({refresh: {money:this.state.money, repaymentday:this.state.repaymentday, billday: this.state.billday}});
+        if (this.state.repaymentday > 31 || this.state.repaymentday < 0 || !this.isRealNum(this.state.repaymentday)) {
+            Toast.show("还款日无效", Toast.SHORT);
+            return
+        }
+
+        if (this.state.billday > 31 || this.state.billday < 0 || !this.isRealNum(this.state.billday)) {
+            Toast.show("账单日无效", Toast.SHORT);
+            return
+        }
+
+        // 更新数据库
+        CommonDataManager.getInstance().initDatabase().write(()=>{
+            //进行更新
+            CommonDataManager.getInstance().initDatabase().create('BankInfoData',
+                {id:this.props.cardNum,cardMoney:this.state.money, cardRepayDay: this.state.repaymentday,
+                    cardBillDay:this.state.billday},true);
+        });
+        Actions.replace('user')
+    };
+
+    isRealNum = (val) =>{
+        // isNaN()函数 把空串 空格 以及NUll 按照0来处理 所以先去除
+        if(val === "" || val ==null){
+            return false;
+        }
+
+        if(!isNaN(val)){
+            return true;
+        }else{
+            return false;
+        }
     };
 
     render() {
@@ -48,13 +111,13 @@ export default class ModifyCreditInfo extends Component {
                 <StatusBar hidden={false} translucent={false}/>
                 <HeaderView
                     title="修改信用卡信息"
-                    back={true}
+                    onBack={this.goCreditPage}
                 />
                 <View style={styles.subCreditCardContainer}
                 >
                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                         <Text style={styles.creditDesc}>
-                            {this.props.cardNo}
+                            {this.props.cardNum}
                         </Text>
                     </View>
                     <View style={{flexDirection: 'row', justifyContent: 'center', marginTop:30}}>
@@ -62,7 +125,7 @@ export default class ModifyCreditInfo extends Component {
                             额  度
                         </Text>
                         <TextInput style={styles.textInput}
-                                   placeholder="额度"
+                                   placeholder={this.props.cardMoney === '' ? "额度" : this.props.cardMoney}
                                    placeholderTextColor="#A0A0A0"
                                    keyboardType='numeric'
                                    underlineColorAndroid='transparent'
@@ -75,7 +138,7 @@ export default class ModifyCreditInfo extends Component {
                             还款日
                         </Text>
                         <TextInput style={styles.textInput}
-                                   placeholder="还款日"
+                                   placeholder={this.props.cardRepayDay === '' ? "还款日" : this.props.cardRepayDay }
                                    placeholderTextColor="#A0A0A0"
                                    keyboardType='numeric'
                                    underlineColorAndroid='transparent'
@@ -88,7 +151,7 @@ export default class ModifyCreditInfo extends Component {
                             账单日
                         </Text>
                         <TextInput style={styles.textInput}
-                                   placeholder="账单日"
+                                   placeholder={this.props.cardBillDay === '' ? "账单日" : this.props.cardBillDay }
                                    placeholderTextColor="#A0A0A0"
                                    keyboardType='numeric'
                                    underlineColorAndroid='transparent'

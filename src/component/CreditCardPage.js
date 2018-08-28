@@ -1,10 +1,21 @@
 import React, {Component} from 'react'
-import {Dimensions, FlatList, Image, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {
+    BackHandler,
+    Dimensions,
+    FlatList,
+    Image,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 import HeaderView from "../widget/HeaderView";
 import Button from 'apsl-react-native-button'
 import {Actions} from 'react-native-router-flux';
 import StorageUtil from "../util/StorageUtil";
 import BankInfo from "../const/BackInfo";
+import CommonDataManager from "../manager/CommonDataManager";
 
 // 取得屏幕的宽高Dimensions
 const { width, height } = Dimensions.get('window');
@@ -13,116 +24,169 @@ export default class CreditCardPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            debitCardList: [] ,
-            bankName: '',
-            cardNo:'',
-            cardNum:'',
-            money:'',
-            repaymentday:'',
-            billday:''
+            bankCardInfoList: [] ,
+            cardNum:'', //卡号
+            cardName:'',   // 银行名称
+            cardNumLast:'',// 银行卡后四位
+            cardMoney:'',  // 额度
+            cardRepayDay:'',// 还款日
+            cardBillDay:'', // 账单日
         };
 
 
     }
 
     componentWillMount() {
-
-        StorageUtil.get(BankInfo.BANK_NAME).then((bankName) => {
-            this.setState({bankName:bankName});
-        });
-        StorageUtil.get(BankInfo.BANK_NUM).then((cardNo) => {
-            this.setState({cardNo:cardNo});
-        });
-        StorageUtil.get(BankInfo.BANK_NUM_LAST_FORE).then((cardNum) => {
-            this.setState({cardNum:cardNum});
-        });
-        StorageUtil.get(BankInfo.MONEY).then((money) => {
-            this.setState({money:money});
-        });
-        StorageUtil.get(BankInfo.REPAYMENT_DAY).then((repaymentday) => {
-            this.setState({repaymentday:repaymentday});
-        });
-        StorageUtil.get(BankInfo.BILL_DAY).then((billday) => {
-            this.setState({billday:billday});
-        });
-
-        console.log("componentWillMount" + this.state.bankName);
+        this.getBankCardList();
     }
 
-    onModifyCredit = () => {
-        Actions.modifyCredit({cardNo:this.props.cardNum});
+    /**
+     * 从数据库中拿到BankInfo
+     */
+    getBankCardList = () => {
+        let bankInfo = CommonDataManager.getInstance().initDatabase().objects('BankInfoData');
+        let data = [];
+
+        for (let i = 0; i <  Array.from(bankInfo).length; i++) {
+            console.log("Info: " + bankInfo.length + bankInfo[i].id);
+            data.push({
+                            key: {
+                                'cardNum': bankInfo[i].id,
+                                'cardName': bankInfo[i].cardName,
+                                'cardNumLast': bankInfo[i].cardNumLast,
+                                'cardMoney': bankInfo[i].cardMoney,
+                                'cardRepayDay': bankInfo[i].cardRepayDay,
+                                'cardBillDay': bankInfo[i].cardBillDay,
+                            }
+                        });
+        }
+        this.setState({
+            bankCardInfoList: data,
+        })
+
+        Actions.refresh({bankCardInfoList: data})
+    };
+
+    /**
+     * 从数据库中删除数据
+     * @param bankCardNum
+     * @param bankCardName
+     * @param bankCardLast
+     * @param bankCardMoney
+     * @param bankCardReplay
+     * @param bankCardBilly
+     */
+    deleteBank = (bankCardNum, bankCardName, bankCardLast, bankCardMoney, bankCardReplay, bankCardBilly) => {
+        CommonDataManager.getInstance().initDatabase().write(()=>{
+            let bankinfo = CommonDataManager.getInstance().initDatabase().create('BankInfoData',{id:bankCardNum,cardName:bankCardName,cardNumLast:bankCardLast,
+                cardMoney:bankCardMoney,cardRepayDay:bankCardReplay,cardBillDay:bankCardBilly}, true);
+
+
+            CommonDataManager.getInstance().initDatabase().delete(bankinfo);
+        });
+
+        this.getBankCardList();
+            // Actions.refresh({bankCardInfoList: data});
+    };
+
+    onModifyCredit = (bankCardNum, bankCardMoney, bankCardRepay,bankCardBill) => {
+        Actions.replace('modifyCredit', {cardNum:bankCardNum, cardMoney:bankCardMoney
+            , cardRepayDay:bankCardRepay, cardBillDay:bankCardBill});
     };
 
     bindCreditCard = () => {
-       Actions.bindcard();
+       Actions.replace('bindcard');
+    };
+
+    itemBankInfo = ({item}) => {
+        let cardNum = item.key.cardNum; //卡号
+        let cardName = item.key.cardName;   // 银行名称
+        let cardNumLast = item.key.cardNumLast;// 银行卡后四位
+        let cardMoney = item.key.cardMoney;  // 额度
+        let cardRepayDay = item.key.cardRepayDay;// 还款日
+        let cardBillDay = item.key.cardBillDay; // 账单日
+
+        this.setState({cardNum:cardNum});
+        this.setState({cardName:cardName});
+        this.setState({cardNumLast:cardNumLast});
+        this.setState({cardMoney:cardMoney});
+        this.setState({cardRepayDay:cardRepayDay});
+        this.setState({cardBillDay:cardBillDay});
+       return <View style={styles.subCreditCardContainer}
+        >
+            <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
+
+                <TouchableOpacity onPress={() => this.onModifyCredit(cardNum, cardMoney, cardRepayDay, cardBillDay)}>
+                    <Image style={styles.modifyTextStyle}
+                           source={require('../../image/ic_button_setting.png')}
+                    />
+                </TouchableOpacity>
+
+
+
+                <TouchableOpacity onPress={() => this.deleteBank(cardNum, cardName, cardNumLast, cardMoney, cardRepayDay,cardBillDay)}
+                   style={{marginLeft: width - 135,}}               >
+                    <Image style={styles.deleteTextStyle}
+                           source={require('../../image/iv_delete.png')}/>
+
+                </TouchableOpacity>
+
+            </View>
+
+           <View style={styles.subCreditTitleBar}>
+               <Image style={styles.creditIcon}
+                      source={require('../../image/CMB.png')}>
+               </Image>
+               <Text style={styles.creditTitle}>
+                   {cardName}({cardNumLast})
+               </Text>
+           </View>
+
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <Text style={styles.creditDesc}>
+                    额度
+                </Text>
+                <Text style={styles.creditDesc}>
+                    到账日
+                </Text>
+                <Text style={styles.creditDesc}>
+                    还款日
+                </Text>
+                <Text style={styles.creditDesc}>
+                    状态
+                </Text>
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                <Text style={styles.creditDesc}>
+                    {cardMoney}
+                </Text>
+                <Text style={styles.creditDesc}>
+                    {cardBillDay}
+                </Text>
+                <Text style={styles.creditDesc}>
+                    {cardRepayDay}
+                </Text>
+                <Text style={styles.creditDesc}>
+                    无计划
+                </Text>
+            </View>
+
+        </View>
     };
 
     render() {
-        const bankName = this.state.bankName? this.state.bankName: this.props.bankName;
-        const cardNo = this.state.cardNum? this.state.cardNum: this.props.cardNo;
-        const money = this.state.money? this.state.money: this.props.money;
-        const repaymentday = this.state.repaymentday? this.state.repaymentday: this.props.repaymentday;
-        const billday = this.state.billday? this.state.billday: this.props.billday;
-        
         return (
             <View style={styles.container}>
                 <StatusBar hidden={false} translucent={false}/>
                 <HeaderView
-                    title="信用卡还款"
-                    back={true}
+                    title="信用卡"
+                    back={false}
                 />
-                {bankName ?
-                    <View style={styles.subCreditCardContainer}
-                    >
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-
-                            <TouchableOpacity onPress={this.onModifyCredit}>
-                                <Text style={styles.modifyTextStyle}>
-                                    修改
-                                </Text>
-                            </TouchableOpacity>
-
-                            <View style={styles.subCreditTitleBar}>
-                                <Image style={styles.creditIcon}
-                                       source={require('../../image/CMB.png')}>
-                                </Image>
-                                <Text style={styles.creditTitle}>
-                                    {bankName}({cardNo})
-                                </Text>
-                            </View>
-
-                        </View>
-
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                            <Text style={styles.creditDesc}>
-                                额度
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                到账日
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                还款日
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                状态
-                            </Text>
-                        </View>
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                            <Text style={styles.creditDesc}>
-                                {money}
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                {repaymentday}
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                {billday}
-                            </Text>
-                            <Text style={styles.creditDesc}>
-                                无计划
-                            </Text>
-                        </View>
-
-                    </View>
+                {this.state.bankCardInfoList ?
+                    <FlatList
+                        data={this.state.bankCardInfoList}
+                        renderItem={this.itemBankInfo}>
+                    </FlatList>
                     :
                     <Text>
                        
@@ -134,7 +198,7 @@ export default class CreditCardPage extends Component {
                         height:40,
                         width:width-80,
                         color: 'white',
-                        marginTop:250,
+                        marginTop:20,
                         backgroundColor:'#0073ff',
                         borderColor:'#0073ff',
                         }}
@@ -179,7 +243,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center',
         margin: 15,
-        marginTop: 50,
+        marginTop: 20,
         marginLeft: 20,
         // backgroundColor: '#ac78d1',
     },
@@ -197,20 +261,19 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     deleteTextStyle: {
-        flex: 1,
-        fontSize: 15,
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
         marginTop:20,
-        marginRight: 60,
-        color: '#ffffff',
-        alignSelf: 'center'
+        // marginLeft: width - 135,
+        justifyContent: 'flex-end',
     },
     modifyTextStyle: {
-        flex: 1,
-        fontSize: 15,
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
         marginTop:20,
-        marginLeft: 60,
-        color: '#ffffff',
-        alignSelf: 'center'
+        marginLeft: 20,
     },
     creditDesc: {
         // backgroundColor: '#112233',
@@ -223,15 +286,11 @@ const styles = StyleSheet.create({
     deleteContainterStyle: {
         flex: 1,
         // backgroundColor: '#3344ff',
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-end',
         alignItems: 'flex-end',
-        // alignSelf: 'flex-end',
+        alignSelf: 'flex-end',
         marginTop: 10,
         marginRight: 20,
     },
-    deleteIconStyle: {
-        width: 15,
-        height: 15,
-        resizeMode: 'contain'
-    },
+
 });

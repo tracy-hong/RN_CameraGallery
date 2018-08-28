@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Dimensions, Text, TextInput, TouchableOpacity, View,} from "react-native";
+import {StyleSheet, Dimensions, Text, TextInput, TouchableOpacity, View, BackHandler,} from "react-native";
 import HeaderView from "../widget/HeaderView";
 import Toast from '../widget/Toast';
 import LoadingView from "../widget/LoadingView";
@@ -10,6 +10,7 @@ import CheckUtil from "../util/CheckUtil";
 import Button from 'apsl-react-native-button'
 import BankInfo from "../const/BackInfo";
 import StorageUtil from "../util/StorageUtil";
+import CommonDataManager from "../manager/CommonDataManager";
 
 const win = Dimensions.get('window');
 
@@ -24,6 +25,24 @@ export default class BindCard extends Component {
             isLoading: false,
         };
     }
+
+    componentDidMount() {
+        console.log("componentDidMount");
+        BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    componentWillUnmount() {
+        console.log("componentWillUnmount");
+        BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
+    }
+
+    onBackAndroid = () => {
+        console.log('currentScene: ' + Actions.currentScene);
+        if (Actions.currentScene === 'bindcard') {
+            Actions.replace('user');
+            return true;
+        }
+    };
 
     bindCard = () => {
         if (this.state.cardNo === '') {
@@ -46,11 +65,14 @@ export default class BindCard extends Component {
         let cardNum = this.state.cardNo;
         let cardNo = cardNum.toString().substring(cardNum.length - 4, cardNum.length);
 
-        StorageUtil.set(BankInfo.BANK_NAME, this.props.bankName);
-        StorageUtil.set(BankInfo.BANK_NUM, cardNum);
-        StorageUtil.set(BankInfo.BANK_NUM_LAST_FORE, cardNo);
+        // 将数据写入数据库
+        CommonDataManager.getInstance().initDatabase().write(()=>{
+            CommonDataManager.getInstance().initDatabase().create('BankInfoData',{id:cardNum,cardName:this.props.bankName,cardNumLast:cardNo,
+                cardMoney:'',cardRepayDay:'',cardBillDay:''});
+            console.log("数据添加完成");
+        });
 
-        Actions.pop({refresh: {cardNum:cardNum, cardNo:cardNo, bankName: this.props.bankName}});
+        Actions.replace('user');
     };
 
     onSelectBank = () => {
@@ -70,6 +92,10 @@ export default class BindCard extends Component {
         this.setState({mobileNo: mobileNo});
     };
 
+    goCreditPage = () => {
+        Actions.replace('creditcard');
+    };
+
 
     render() {
         const bankNameColor = this.props.bankId ? '#000000' : '#A0A0A0';
@@ -77,7 +103,7 @@ export default class BindCard extends Component {
         return (
             <View style={{flex: 1}}>
                 <HeaderView title="添加信用卡"
-                            onBack={this.backPress}
+                            onBack={this.goCreditPage}
                 />
                 <View style={{backgroundColor: '#f6f6f6', padding: 20, flex: 1}}>
                     <Text style={styles.hint}>

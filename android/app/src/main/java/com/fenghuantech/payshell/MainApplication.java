@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 
 import com.facebook.react.ReactApplication;
+import io.realm.react.RealmReactPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -16,6 +17,8 @@ import com.wix.RNCameraKit.RNCameraKitPackage;
 
 import java.util.Arrays;
 import java.util.List;
+
+import io.realm.react.RealmReactPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -32,7 +35,8 @@ public class MainApplication extends Application implements ReactApplication {
                 new IDCardScanPackage(),
                 new RNCameraKitPackage(),
                 new ImageResizerPackage(),
-                new RNExitAppPackage()
+                new RNExitAppPackage(),
+                new RealmReactPackage()
         );
     }
 

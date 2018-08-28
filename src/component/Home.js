@@ -5,6 +5,7 @@ import Swiper from 'react-native-swiper';
 import HeaderView from "../widget/HeaderView";
 import {Actions} from 'react-native-router-flux';
 import RNExitApp from "react-native-exit-app";
+import CreditCardPage from "./CreditCardPage";
 
 // 取得屏幕的宽高Dimensions
 const { width, height } = Dimensions.get('window');
@@ -32,6 +33,11 @@ export default class Home extends Component {
             return true;
         }
     };
+
+    static onEnter = () => {
+        console.log("HOme");
+    };
+
 
     onBackExitAPP = () => {
         if (this.lastBackPressed && this.lastBackPressed + 2000 >= Date.now()) {

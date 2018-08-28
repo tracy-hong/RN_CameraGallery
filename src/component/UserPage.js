@@ -30,6 +30,10 @@ export default class UserPage extends Component {
 
     }
 
+    static onEnter = () => {
+        console.log("UserPage");
+    };
+
     realName = () => {
         if (this.state.idcardnum !==null) {
             console.log("idcardnum: " + this.state.idcardnum);

@@ -43,7 +43,7 @@ class App extends Component {
                                type={ActionConst.RESET}
                                panHandlers={null}
                         />
-                        <Scene key="user" component={UserPage} hideNavBar={true} title="用户"
+                        <Scene key="user" component={CreditCardPage} hideNavBar={true} title="信用卡"
                                iconDefaultImage={require('./image/iv_user_default.png')}
                                iconSelectImage={require('./image/iv_user_select.png')}
                                icon={TabIcon}

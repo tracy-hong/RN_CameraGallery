@@ -1,4 +1,6 @@
 rootProject.name = 'payshell'
+include ':realm'
+project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules/realm/android')
 //include ':react-native-xinge-push'
 //project(':react-native-xinge-push').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-xinge-push/android')
 //include ':react-native-fs'
@@ -10,3 +12,4 @@ project(':react-native-exit-app').projectDir = new File(rootProject.projectDir, 
 
 include ':rncamerakit'
 project(':rncamerakit').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-camera-kit/android/')
+
