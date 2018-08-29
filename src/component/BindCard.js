@@ -4,12 +4,8 @@ import HeaderView from "../widget/HeaderView";
 import Toast from '../widget/Toast';
 import LoadingView from "../widget/LoadingView";
 import {Actions} from 'react-native-router-flux';
-import {BankList, CardType} from "../const/BankList";
-import _ from 'lodash';
 import CheckUtil from "../util/CheckUtil";
 import Button from 'apsl-react-native-button'
-import BankInfo from "../const/BackInfo";
-import StorageUtil from "../util/StorageUtil";
 import CommonDataManager from "../manager/CommonDataManager";
 
 const win = Dimensions.get('window');
@@ -71,6 +67,7 @@ export default class BindCard extends Component {
                 cardMoney:'',cardRepayDay:'',cardBillDay:''});
             console.log("数据添加完成");
         });
+        Toast.show("信用卡添加成功！", Toast.SHORT);
 
         Actions.replace('user');
     };
@@ -93,7 +90,7 @@ export default class BindCard extends Component {
     };
 
     goCreditPage = () => {
-        Actions.replace('creditcard');
+        Actions.replace('user');
     };
 
 

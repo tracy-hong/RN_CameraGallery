@@ -1,4 +1,4 @@
-package com.fenghuantech.payshell.image;
+package com.fenghuantech.pay.image;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

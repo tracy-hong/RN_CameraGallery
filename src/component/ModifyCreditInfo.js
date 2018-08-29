@@ -89,6 +89,8 @@ export default class ModifyCreditInfo extends Component {
                 {id:this.props.cardNum,cardMoney:this.state.money, cardRepayDay: this.state.repaymentday,
                     cardBillDay:this.state.billday},true);
         });
+
+        Toast.show("还款日期设置成功！", Toast.SHORT);
         Actions.replace('user')
     };
 

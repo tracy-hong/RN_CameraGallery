@@ -87,7 +87,7 @@ export default class CreditCardPage extends Component {
 
         this.getBankCardList();
             // Actions.refresh({bankCardInfoList: data});
-    };
+    };                
 
     onModifyCredit = (bankCardNum, bankCardMoney, bankCardRepay,bankCardBill) => {
         Actions.replace('modifyCredit', {cardNum:bankCardNum, cardMoney:bankCardMoney

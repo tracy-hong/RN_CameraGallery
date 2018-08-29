@@ -1,4 +1,4 @@
-package com.fenghuantech.payshell.image;
+package com.fenghuantech.pay.image;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -12,7 +12,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
-import com.fenghuantech.payshell.utils.ImageUtils;
+import com.fenghuantech.pay.utils.ImageUtils;
 
 import java.io.File;
 import java.net.URI;

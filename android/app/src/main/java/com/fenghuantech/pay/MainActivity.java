@@ -1,4 +1,4 @@
-package com.fenghuantech.payshell;
+package com.fenghuantech.pay;
 
 import android.os.Bundle;
 
@@ -12,7 +12,7 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "payshell";
+        return "qipay";
     }
 
     @Override

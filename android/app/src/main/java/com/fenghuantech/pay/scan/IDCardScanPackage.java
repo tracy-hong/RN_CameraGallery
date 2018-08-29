@@ -1,4 +1,4 @@
-package com.fenghuantech.payshell.scan;
+package com.fenghuantech.pay.scan;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;

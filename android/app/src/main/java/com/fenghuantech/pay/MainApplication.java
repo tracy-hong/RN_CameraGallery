@@ -1,4 +1,4 @@
-package com.fenghuantech.payshell;
+package com.fenghuantech.pay;
 
 import android.app.Application;
 import android.content.Context;
@@ -10,15 +10,13 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.fenghuantech.payshell.image.ImageResizerPackage;
-import com.fenghuantech.payshell.scan.IDCardScanPackage;
+import com.fenghuantech.pay.image.ImageResizerPackage;
+import com.fenghuantech.pay.scan.IDCardScanPackage;
 import com.github.wumke.RNExitApp.RNExitAppPackage;
 import com.wix.RNCameraKit.RNCameraKitPackage;
 
 import java.util.Arrays;
 import java.util.List;
-
-import io.realm.react.RealmReactPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
